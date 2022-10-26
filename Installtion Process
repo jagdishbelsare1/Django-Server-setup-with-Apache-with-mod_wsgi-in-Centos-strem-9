@@ -1,0 +1,119 @@
+Adding the user
+[root@localhost ~]# adduser jagdish
+[root@localhost ~]# passwd jagdish
+Changing password for user jagdish
+New password:
+Retype new password:
+passwd: all authentication tokens updated successfully.
+Grant root permissions to a new or existing user
+[root@server-01 ~]# visudo
+#sudo yum install httpd mod-wsgi
+#sudo dnf install mod_wsgi httpd
+#sudo systemctl enable httpd
+#sudo systemctl start httpd
+#sudo systemctl status httpd
+#httpd -v
+#sudo su jagdish
+#sudo yum install python3-pip
+#sudo pip install virtualenv
+After installing the “virtualenv” create a project directory for Django.
+#sudo cd /home/jagdish/
+# virtualenv -p python3 djangoprojectenv
+#source djangoprojectenv/bin/activate
+(djangoprojectenv) [jagdish@localhost ~]$ pip install django
+(djangoprojectenv) [jagdish@localhost ~]$ python3 --version
+Python 3.9.13
+(djangoprojectenv) [jagdish@localhost ~]$ django-admin --version
+4.1.2
+(djangoprojectenv) [jagdish@localhost mywebsite]$ python3 manage.py runserver
+Watching for file changes with StatReloader
+Performing system checks...
+System check identified no issues (0 silenced).
+You have 18 unapplied migration(s). Your project may not work properly until you apply the
+migrations for app(s): admin, auth, contenttypes, sessions.
+Run 'python manage.py migrate' to apply them.
+October 11, 2022 - 10:32:10
+Django version 4.1.2, using settings 'mywebsite.settings'
+Starting development server at http://127.0.0.1:8000/
+Quit the server with CONTROL-C.
+(djangoprojectenv) [jagdish@localhost mywebsite]$ deactivate (if you want exit)
+(djangoprojectenv) [jagdish@localhost mywebsite]$django-admin startproject mywebsite
+#python manage.py startapp base
+#python manage.py runserver 0.0.0.0:8000
+#chmod -R o+x /home/jagdish/
+## vi mywebsite/wsgi.py (edit below)
+
+python_home = '/home/jagdish/djangoprojectenv'
+activate_this = python_home + '/bin/activate_this.py'
+with open(activate_this) as f:
+code = compile(f.read(), activate_this, 'exec')
+exec(code, dict(__file__=activate_this))
+import os
+import sys #added this line
+from django.core.wsgi import get_wsgi_application
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(BASE_DIR)
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'mywebsite.settings')
+application = get_wsgi_application()
+
+#python manage.py migrate
+#python manage.py createsuperuser
+#vi Setting.py(edit & add below line)
+import os
+STATIC_ROOT = os.path.join(BASE_DIR, "static/")
+Install MariaDB to configure Database Server.
+Do not forget to change the default database configurations to –
+DATABASES = {
+'default': {
+'ENGINE': 'django.db.backends.mysql',
+'NAME': 'first_db',
+'USER': 'root',
+'PASSWORD': 'your-root-password',
+'HOST': 'localhost',
+'PORT': '',
+}
+}
+Error loading MySQLdb Module 'Did you install mysqlclient or
+MySQL-python?'
+pip install pymysql
+edit the init.py file in your project origin directory
+import pymysql
+pymysql.install_as_MySQLdb()
+$ python manage.py migrate
+$ python manage.py collectstatic
+#install PHPMyAdmin on CentOS 9 Stream
+create the django.conf under /etc/httpd/conf.d/
+#vi /etc/httpd/conf.d/django.conf
+<VirtualHost *:80>
+
+    DocumentRoot /home/jagdish/mywebsite/base/templates/base/
+
+     Alias /static /home/jagdish/mywebsite/static
+        <Directory /home/jagdish/mywebsite/static>
+                Require all granted
+        </Directory>
+
+        Alias /static /home/jagdish/mywebsite/media
+        <Directory /home/jagdish/mywebsite/media>
+                Require all granted
+        </Directory>
+
+
+
+    <Directory /home/jagdish/mywebsite/mywebsite>
+    <files wsgi.py>
+        Require all granted
+    </files>
+    </Directory>
+
+    WSGIDaemonProcess mywebsite
+    WSGIProcessGroup mywebsite
+    WSGIScriptAlias / /home/jagdish/mywebsite/mywebsite/wsgi.py process-group=mywebsite
+</VirtualHost>
+
+
+restart the httpd service
+[root@localhost opt]# sudo systemctl restart httpd
+
+
+
